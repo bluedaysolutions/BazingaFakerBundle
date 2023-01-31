@@ -27,6 +27,7 @@
         <service id="Bazinga\Bundle\FakerBundle\Factory\FormatterFactory" alias="faker.formatter_factory" />
 
         <service id="Bazinga\Bundle\FakerBundle\Command\PopulateCommand" class="%faker.populate_command.class%">
+            <argument type="service" id="faker.populator" />
             <tag name="console.command" />
         </service>
     </services>

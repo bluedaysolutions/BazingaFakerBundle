@@ -10,15 +10,29 @@
 
 namespace Bazinga\Bundle\FakerBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author William Durand <william.durand1@gmail.com>
  */
-class PopulateCommand extends ContainerAwareCommand
+class PopulateCommand extends Command
 {
+    /**
+     * Populators do not have a common interface, so there is no proper typehinting.
+     *
+     * @var \Faker\ORM\Propel\Populator|\Faker\ORM\Propel2\Populator|\Faker\ORM\Doctrine\Populator|\Faker\ORM\CakePHP\Populator|\Faker\ORM\Spot\Populator
+     */
+    private $fakerOrmPopulator;
+
+    public function __construct($fakerOrmPopulator)
+    {
+        $this->fakerOrmPopulator = $fakerOrmPopulator;
+
+        parent::__construct();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -41,12 +55,15 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $populator = $this->getContainer()->get('faker.populator');
-        $insertedPks = $populator->execute();
+        if (!\method_exists($this->fakerOrmPopulator, 'execute')) {
+            $output->writeln('<error>Populator must implement execute() method.</error>');
+            return 1;
+        }
+        $insertedPks = $this->fakerOrmPopulator->execute();
 
         $output->writeln('');
 
-        if (0 === count($insertedPks)) {
+        if (count($insertedPks) === 0) {
             $output->writeln('<error>No entities populated.</error>');
         } else {
             foreach ($insertedPks as $class => $pks) {
@@ -55,5 +72,7 @@ HELP
                 $output->writeln(sprintf('Inserted <info>%s</info> new <info>%s</info> objects', count($pks), $shortClassName));
             }
         }
+
+        return 0;
     }
 }

@@ -1,6 +1,6 @@
 {
-    "name": "willdurand/faker-bundle",
-    "description": "Put the awesome Faker lib into the DIC and populate your database with fake data.",
+    "name": "bluedaysolutions/faker-bundle",
+    "description": "Put the awesome Faker lib into the DIC and populate your database with fake data. With Symfony 4+ compatibility",
     "keywords": ["faker", "fixtures", "data"],
     "type": "symfony-bundle",
     "license": "MIT",
@@ -11,15 +11,18 @@
         }
     ],
     "require": {
-        "php": ">=5.3",
-        "symfony/framework-bundle": "~2.3|~3.0|^4.0",
-        "fzaninotto/faker": "~1.3"
+        "php": ">=7.4",
+        "symfony/framework-bundle": "~4.0",
+        "symfony/console": "4.4.*",
+        "fakerphp/faker": "^1.21"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^4.0"
     },
     "autoload": {
-        "psr-0": { "Bazinga\\Bundle\\FakerBundle": "" }
+        "psr-4": {
+            "Bazinga\\Bundle\\FakerBundle\\": ""
+        }
     },
     "target-dir": "Bazinga/Bundle/FakerBundle",
     "extra": {

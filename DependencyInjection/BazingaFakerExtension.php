@@ -46,22 +46,15 @@ class BazingaFakerExtension extends Extension
             ->setArguments(array($config['locale']))
             ;
 
-        // BC sf<2.6
-        if (method_exists($definition, 'setFactory')) {
-            $definition->setFactory(array(
-                $container->getParameter('faker.generator.class'),
-                'create'
-            ));
-        } else {
-            $definition
-                ->setFactoryClass($container->getParameter('faker.generator.class'))
-                ->setFactoryMethod('create');
-        }
+        $definition->setFactory(array(
+            $container->getParameter('faker.generator.class'),
+            'create'
+        ));
 
         switch ($config['orm']) {
             case 'propel':
-                $container->setParameter('faker.populator.class', 'Faker\ORM\Propel\Populator');
-                $container->setParameter('faker.entity.class', 'Faker\ORM\Propel\EntityPopulator');
+                $container->setParameter('faker.populator.class', \Faker\ORM\Propel\Populator::class);
+                $container->setParameter('faker.entity.class', \Faker\ORM\Propel\EntityPopulator::class);
                 break;
 
             case 'doctrine':
@@ -70,8 +63,8 @@ class BazingaFakerExtension extends Extension
                     ->replaceArgument(1, new Reference('doctrine.orm.entity_manager'))
                     ;
 
-                $container->setParameter('faker.populator.class', 'Faker\ORM\Doctrine\Populator');
-                $container->setParameter('faker.entity.class', 'Faker\ORM\Doctrine\EntityPopulator');
+                $container->setParameter('faker.populator.class', \Faker\ORM\Doctrine\Populator::class);
+                $container->setParameter('faker.entity.class', \Faker\ORM\Doctrine\EntityPopulator::class);
                 break;
 
             case 'mandango':
@@ -80,8 +73,8 @@ class BazingaFakerExtension extends Extension
                     ->replaceArgument(1, new Reference('mandango'))
                     ;
 
-                $container->setParameter('faker.populator.class', 'Faker\ORM\Mandango\Populator');
-                $container->setParameter('faker.entity.class', 'Faker\ORM\Mandango\EntityPopulator');
+                $container->setParameter('faker.populator.class', \Faker\ORM\Mandango\Populator::class);
+                $container->setParameter('faker.entity.class', \Faker\ORM\Mandango\EntityPopulator::class);
                 break;
         }
 
@@ -95,7 +88,7 @@ class BazingaFakerExtension extends Extension
 
         $i = 0;
         foreach ($config['entities'] as $class => $params) {
-            $number = isset($params['number']) ? $params['number'] : 5;
+            $number = $params['number'] ?? 5;
 
             switch ($config['orm']) {
                 case 'propel':
@@ -108,16 +101,10 @@ class BazingaFakerExtension extends Extension
 
                 case 'doctrine':
                     $definition = $container->register('faker.entities.'.$i.'.metadata');
-                    if (method_exists($definition, 'setFactory')) {
-                        $definition->setFactory(array(new Reference('doctrine.orm.entity_manager'), 'getClassMetadata'));
-                    } else {
-                        $definition
-                            ->setFactoryService('doctrine.orm.entity_manager')
-                            ->setFactoryMethod('getClassMetadata');
 
-                    }
                     $definition
-                        ->setClass('Doctrine\ORM\Mapping\ClassMetadata')
+                        ->setFactory(array(new Reference('doctrine.orm.entity_manager'), 'getClassMetadata'))
+                        ->setClass(\Doctrine\ORM\Mapping\ClassMetadata::class)
                         ->setArguments(array($class));
 
                     $container
@@ -152,13 +139,8 @@ class BazingaFakerExtension extends Extension
                             'closure',
                             array(new Reference('faker.generator'), $method, $parameters, $unique, $optional)
                         ));
-                        if (method_exists($definition, 'setFactory')) {
-                            $definition->setFactory(array(new Reference('faker.formatter_factory'), 'createClosure'));
-                        } else {
-                            $definition
-                                ->setFactoryService('faker.formatter_factory')
-                                ->setFactoryMethod('createClosure');
-                        }
+
+                        $definition->setFactory(array(new Reference('faker.formatter_factory'), 'createClosure'));
 
                         $formatters[$column] = new Reference('faker.entities.' . $i . '.formatters.' . $j);
                         $j++;
@@ -181,13 +163,8 @@ class BazingaFakerExtension extends Extension
                                 'closure',
                                 array(new Reference('faker.generator'), $method, $parameters)
                             ));
-                            if (method_exists($definition, 'setFactory')) {
-                                $definition->setFactory(array(new Reference('faker.formatter_factory'), 'createClosure'));
-                            } else {
-                                $definition
-                                    ->setFactoryService('faker.formatter_factory')
-                                    ->setFactoryMethod('createClosure');
-                            }
+
+                            $definition->setFactory(array(new Reference('faker.formatter_factory'), 'createClosure'));
 
                             $customModifiers[$methodName][$key] = new Reference('faker.entities.' . $i . '.formatters.' . $j);
                         }

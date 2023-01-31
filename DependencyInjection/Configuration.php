@@ -25,12 +25,12 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('faker');
+        $treeBuilder = new TreeBuilder('faker');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->beforeNormalization()
-                ->always(function ($v) {
+            ->always(function ($v) {
                     if (isset($v['orm'])) {
                         $v['orm'] = strtolower($v['orm']);
                     }
@@ -39,7 +39,7 @@ class Configuration implements ConfigurationInterface
                 })
             ->end()
             ->children()
-                ->scalarNode('seed')->defaultValue(rand())->end()
+            ->scalarNode('seed')->defaultValue(mt_rand())->end()
                 ->scalarNode('orm')
                     ->defaultValue('propel')
                     ->validate()
