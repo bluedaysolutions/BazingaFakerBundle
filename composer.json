@@ -24,7 +24,6 @@
             "Bazinga\\Bundle\\FakerBundle\\": ""
         }
     },
-    "target-dir": "Bazinga/Bundle/FakerBundle",
     "extra": {
         "branch-alias": {
             "dev-master": "1.4-dev"
